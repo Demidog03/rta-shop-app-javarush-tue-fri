@@ -2,8 +2,10 @@ import AccountScreen from "@/screens/account/account-screen";
 import CartScreen from "@/screens/cart/cart-screen";
 import CategoriesScreen from "@/screens/categories/categories-screen";
 import HomeScreen from "@/screens/home/home-screen";
+import ProductDetailsScreen from "@/screens/product-details/product-details-screen";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 export type RootTabParamList = {
     Home: undefined;
@@ -12,7 +14,22 @@ export type RootTabParamList = {
     Account: undefined;
 }
 
+export type RootStackParamList = {
+    ProductDetails: { id: string };
+    Tabs: undefined;
+}
+
 const Tab = createBottomTabNavigator<RootTabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export function RootNavigator() {
+    return (
+        <Stack.Navigator initialRouteName="Tabs">
+            <Stack.Screen options={{ headerShown: false }} name="Tabs" component={TabsNavigator} />
+            <Stack.Screen options={{ headerShown: false }} name="ProductDetails" component={ProductDetailsScreen} />
+        </Stack.Navigator>
+    )
+}
 
 export function TabsNavigator() {
     return (

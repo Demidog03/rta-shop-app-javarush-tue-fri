@@ -1,19 +1,21 @@
-import 'react-native-gesture-handler';
-
-import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import { TabsNavigator } from './navigation/root-navigator';
-
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
+import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import 'react-native-gesture-handler';
+import { Provider } from 'react-redux';
+import { RootNavigator } from './navigation/root-navigator';
+import store from './store/store';
 
 export default function App() {
     return (
         <GluestackUIProvider mode="light">
-            <NavigationContainer theme={DefaultTheme}>
-                <TabsNavigator />
-                <StatusBar style="auto" />
-            </NavigationContainer>
+            <Provider store={store}>
+                <NavigationContainer theme={DefaultTheme}>
+                    <RootNavigator />
+                    <StatusBar style="auto" />
+                </NavigationContainer>
+            </Provider>
         </GluestackUIProvider>
     );
 }
