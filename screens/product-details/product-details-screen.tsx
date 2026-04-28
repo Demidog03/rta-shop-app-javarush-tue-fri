@@ -4,32 +4,52 @@ import { Divider } from "@/components/ui/divider";
 import { Heading } from "@/components/ui/heading";
 import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
-import { productsMockData } from "@/modules/products/data/products-mock.data";
+import { addToCart, removeFromCart } from "@/modules/products/slices/products.slice";
 import { useAppNavigation, useAppRoute } from "@/navigation/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import Header from "@/widjets/header/Header";
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetailsScreen() {
     const navigation = useAppNavigation();
+    const dispatch = useAppDispatch();
     const { id } = useAppRoute().params as { id: string };
-    const product = productsMockData.find((product) => product.id === id);
+    const { cart, products } = useAppSelector((state) => state.products);
+    const product = products.find((product) => product.id === id);
+    
 
-    console.log(id);
+    function handleAddToCart() {
+        if (product) {
+            dispatch(addToCart(product));
+            if (Platform.OS === 'android') {
+                ToastAndroid.showWithGravity(`"${product.name}" added to cart`, ToastAndroid.SHORT, ToastAndroid.TOP);
+            }
+            else if (Platform.OS === 'ios') {
+                Alert.alert('Added to cart', `"${product.name}" added to cart`);
+            }
+        }
+    }
+
+    function handleRemoveFromCart() {
+        if (product) {
+            dispatch(removeFromCart(product));
+        }
+    }
+
+    function checkIfProductIsInCart() {
+        return cart.find((product) => product.id === id);
+    }
+
+    console.log(cart)
+    console.log(products)
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <Box style={styles.container}>
                 <Box>
-                    <Box style={styles.headingContainer}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Tabs')}>
-                            <Ionicons name="chevron-back" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Heading>Product Details</Heading>
-                        <TouchableOpacity>
-                            <Ionicons name="share-social-outline" size={24} color="black" />
-                        </TouchableOpacity>
-                    </Box>
+                    <Header title={'Product Details'} onBackPress={() => navigation.navigate('Tabs')} onSharePress={() => {}} />
                     <Image source={product?.image} alt="Product Image" size="full" resizeMode="cover" style={styles.image} />
                     <Box style={styles.productContainer}>
                         <Heading style={styles.productName} size="2xl">{product?.name}</Heading>
@@ -54,9 +74,16 @@ export default function ProductDetailsScreen() {
                     </Box>
                 </Box>
 
-                <Button style={styles.addToCartButton} size="lg" variant="solid">
-                    <ButtonText style={styles.addToCartButtonText}>Add to Cart</ButtonText>
-                </Button>
+                {checkIfProductIsInCart() && (
+                    <Button onPress={handleRemoveFromCart} style={styles.addToCartButton} size="lg" variant="solid" action="negative">
+                        <ButtonText style={styles.addToCartButtonText}>Remove from cart</ButtonText>
+                    </Button>
+                )}
+                {!checkIfProductIsInCart() && (
+                    <Button onPress={handleAddToCart} style={styles.addToCartButton} size="lg" variant="solid">
+                        <ButtonText style={styles.addToCartButtonText}>Add to Cart</ButtonText>
+                    </Button>
+                )}
             </Box>
         </SafeAreaView>
     )
@@ -66,13 +93,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'space-between',
-    },
-    headingContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10.5,
-        paddingHorizontal: 16,
     },
     image: {
         height: 276,

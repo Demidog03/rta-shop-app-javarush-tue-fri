@@ -1,5 +1,6 @@
 export interface ProductsState {
     products: Product[];
+    cart: Product[];
 }
 
 export interface Product {
